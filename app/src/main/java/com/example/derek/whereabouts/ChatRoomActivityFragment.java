@@ -62,7 +62,7 @@ public class ChatRoomActivityFragment extends ListFragment {
         final ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, list);
         setListAdapter(adapter);
         final EditText input = (EditText) getActivity().findViewById(R.id.editText);
-        final Button button = (Button) getActivity().findViewById(R.id.sendButton);
+        final Button button = (Button) getActivity().findViewById(R.id.button);
         final String username = getActivity().getIntent().getStringExtra("USERNAME");
         final String room = getActivity().getIntent().getStringExtra("ROOM_NAME");
 
