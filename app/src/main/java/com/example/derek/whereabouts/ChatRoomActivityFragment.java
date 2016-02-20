@@ -1,5 +1,7 @@
 package com.example.derek.whereabouts;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -9,14 +11,24 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
+import com.google.android.gms.appdatasearch.GetRecentContextCall;
 
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -24,7 +36,8 @@ import java.util.ArrayList;
  */
 public class ChatRoomActivityFragment extends ListFragment {
 
-    final ArrayList<String> list = new ArrayList<String>();
+    final ArrayList<String> list = new ArrayList<>();
+
     public static Socket mSocket;
     {
         try {
@@ -81,20 +94,26 @@ public class ChatRoomActivityFragment extends ListFragment {
         updateListener = new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-
+                
             }
         };
 
         chatListener = new Emitter.Listener() {
             @Override
-            public void call(Object... args) {
-                JSONObject json = ((JSONObject) args[0]);
-                try {
-                    list.add(json.getString("username") + ": " + json.getString("text"));
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void call(final Object... args) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject json = ((JSONObject) args[0]);
+                        try {
+                            list.add(json.get("username") + ": " + json.get("text"));
+                            adapter.notifyDataSetChanged();
+                            getListView().setSelection(list.size() - 1);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         };
 
@@ -113,19 +132,21 @@ public class ChatRoomActivityFragment extends ListFragment {
                     data.put("username", username);
                     data.put("text", text);
                     data.put("room", room);
+
+                    if(!text.trim().equals("")) {
+                        mSocket.emit("chat", data);
+                        list.add(username + ": " + text.trim());
+                        adapter.notifyDataSetChanged();
+                        getListView().setSelection(list.size() - 1);
+                        input.setText("");
+                    }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
                 }
-                mSocket.emit("chat", data);
-                if(text != null && !text.equals("")) {
-                    list.add(username + ": " + text);
-                    adapter.notifyDataSetChanged();
-                    setSelection(list.size() - 1);
-                    input.setText("");
-                }
             }
         });
+
     }
 
     @Override
@@ -138,4 +159,5 @@ public class ChatRoomActivityFragment extends ListFragment {
         mSocket.off("chat", chatListener);
         Log.d("ChatRoomActivity: ", "SOCKETLOG: Socket off");
     }
+
 }
