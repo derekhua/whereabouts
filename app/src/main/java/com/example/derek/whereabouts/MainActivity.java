@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < values.length; ++i) {
             chats.add(new Chat(android.R.drawable.ic_media_play, values[i]));
         }
-        final ArrayAdapter adapter = new ChatAdapter();
+        final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
@@ -131,8 +131,11 @@ public class MainActivity extends AppCompatActivity {
 
     private class ChatAdapter extends ArrayAdapter {
 
-        private ChatAdapter() {
-            super(MainActivity.this, R.layout.chat_room_entry, chats);
+        Context context;
+
+        private ChatAdapter(Context context) {
+            super(context, R.layout.chat_room_entry, chats);
+            this.context = context;
         }
 
         @Override
@@ -154,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater) getContext()
+                LayoutInflater inflater = (LayoutInflater)context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.chat_room_entry, null);
             }

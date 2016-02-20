@@ -1,7 +1,6 @@
 package com.example.derek.whereabouts;
 
-import android.content.Intent;
-import android.os.AsyncTask;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -11,7 +10,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -21,16 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -38,7 +29,7 @@ import java.util.ArrayList;
  */
 public class ChatRoomActivityFragment extends ListFragment {
 
-    final ArrayList<String> list = new ArrayList<>();
+    final ArrayList<Message> messages = new ArrayList<Message>();
 
     public static Socket mSocket;
     {
@@ -61,7 +52,7 @@ public class ChatRoomActivityFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        final ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, list);
+        final ArrayAdapter adapter = new MessageAdapter(getContext());
         setListAdapter(adapter);
         final EditText input = (EditText) getActivity().findViewById(R.id.editText);
         final Button button = (Button) getActivity().findViewById(R.id.button);
@@ -118,11 +109,11 @@ public class ChatRoomActivityFragment extends ListFragment {
                     public void run() {
                         JSONObject json = ((JSONObject) args[0]);
                         try {
-                            list.add(json.get("username") + ": " + json.get("text"));
+                            messages.add(new Message(android.R.drawable.ic_media_play,
+                                    json.get("username") + "", json.get("text") + "", "00:00"));
                             adapter.notifyDataSetChanged();
-                            getListView().setSelection(list.size() - 1);
-                        }
-                        catch (Exception e) {
+                            getListView().setSelection(messages.size() - 1);
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
@@ -148,9 +139,10 @@ public class ChatRoomActivityFragment extends ListFragment {
 
                     if(!text.trim().equals("")) {
                         mSocket.emit("chat", data);
-                        list.add(username + ": " + text.trim());
+                        messages.add(new Message(android.R.drawable.ic_media_play,
+                                username, text.trim(), "00:00"));
                         adapter.notifyDataSetChanged();
-                        getListView().setSelection(list.size() - 1);
+                        getListView().setSelection(messages.size() - 1);
                         input.setText("");
                     }
                 }
@@ -171,6 +163,68 @@ public class ChatRoomActivityFragment extends ListFragment {
         mSocket.off("update", updateListener);
         mSocket.off("chat", chatListener);
         Log.d("ChatRoomActivity: ", "SOCKETLOG: Socket off");
+    }
+
+    private class Message {
+
+        int icon;
+        String name;
+        String message;
+        String time;
+
+        private Message(int icon, String name, String message, String time) {
+            this.icon = icon;
+            this.name = name;
+            this.message = message;
+            this.time = time;
+        }
+    }
+
+    private class MessageAdapter extends ArrayAdapter {
+
+        Context context;
+
+        private MessageAdapter(Context context) {
+            super(context, R.layout.chat_message_entry, messages);
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return messages.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return messages.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater)context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.chat_message_entry, null);
+            }
+
+            ImageView icon = (ImageView)convertView.findViewById(R.id.message_icon);
+            TextView name = (TextView)convertView.findViewById(R.id.message_title);
+            TextView message = (TextView)convertView.findViewById(R.id.message_content);
+            TextView time = (TextView)convertView.findViewById(R.id.message_time);
+
+            icon.setImageResource(messages.get(position).icon);
+            name.setText(messages.get(position).name);
+            message.setText(messages.get(position).message);
+            time.setText(messages.get(position).time);
+
+            return convertView;
+        }
     }
 
 }
