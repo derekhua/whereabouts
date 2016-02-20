@@ -88,11 +88,13 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         public void onItemClick(AdapterView parent, View view, int position, long id) {
-            Intent intent = new Intent(view.getContext(), MapsActivity.class);
-            intent.putExtra("ROOM_ID", room);
-            intent.putExtra("ROOM_NAME", roomName);
-            intent.putExtra("USERNAME", username);
-            startActivity(intent);
+            if (position == 1) {
+                Intent intent = new Intent(view.getContext(), MapsActivity.class);
+                intent.putExtra("ROOM_ID", room);
+                intent.putExtra("ROOM_NAME", roomName);
+                intent.putExtra("USERNAME", username);
+                startActivity(intent);
+            }
         }
     }
 }
