@@ -1,12 +1,17 @@
 package com.example.derek.whereabouts;
 
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.location.Location;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.animation.Interpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -17,8 +22,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.plus.Plus;
 
@@ -30,6 +37,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Location mCurrentLocation;
     protected static final String TAG = "whereabouts-app";
     protected LocationRequest mLocationRequest;
+    protected MarkerOptions yourMarkerOptions;
+    protected Marker yourMarker;
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -49,9 +58,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         buildGoogleApiClient();
         Log.i(TAG, "HERE");
-
     }
-
 
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
@@ -65,21 +72,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createLocationRequest();
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         LatLng yourLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(yourLatLng).title("Your location"));
+        yourMarkerOptions = new MarkerOptions().position(yourLatLng).title("Your location");
+        yourMarker = mMap.addMarker(yourMarkerOptions);
+
         mMap.moveCamera(CameraUpdateFactory.newLatLng(yourLatLng));
     }
 
@@ -125,12 +125,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        Toast.makeText(this, "location updated",
-                Toast.LENGTH_SHORT).show();
-        mMap.clear();
+        Toast.makeText(this, "location updated", Toast.LENGTH_SHORT).show();
         LatLng yourLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        mMap.addMarker(new MarkerOptions().position(yourLatLng).title("Your location"));
-
+        animateMarker(yourMarker, yourLatLng, false);
     }
 
     protected void startLocationUpdates() {
@@ -155,5 +152,50 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
 
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    public void animateMarker(final Marker marker, final LatLng toPosition, final boolean hideMarker) {
+        final Handler handler = new Handler();
+        final long start = SystemClock.uptimeMillis();
+        Projection proj = mMap.getProjection();
+        Point startPoint = proj.toScreenLocation(marker.getPosition());
+        final LatLng startLatLng = proj.fromScreenLocation(startPoint);
+        final long duration = 500;
+
+        final Interpolator interpolator = new LinearInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = interpolator.getInterpolation((float) elapsed / duration);
+                double lng = t * toPosition.longitude + (1 - t) * startLatLng.longitude;
+                double lat = t * toPosition.latitude + (1 - t) * startLatLng.latitude;
+                marker.setPosition(new LatLng(lat, lng));
+
+                if (t < 1.0) {
+                    // Post again 16ms later.
+                    handler.postDelayed(this, 16);
+                } else {
+                    if (hideMarker) {
+                        marker.setVisible(false);
+                    } else {
+                        marker.setVisible(true);
+                    }
+                }
+            }
+        });
+    }
+
+    //returns distance in miles between two coordinates
+    public double distance(double lat1, double lon1, double lat2, double lon2) {
+        double deltaLat = Math.toRadians(lat2 - lat1);
+        double deltaLong = Math.toRadians(lon2 - lon1);
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+        double a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) + Math.sin(deltaLong / 2) *
+                Math.sin(deltaLong / 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.asin(Math.sqrt(a));
+        return 3959 * c;
     }
 }
