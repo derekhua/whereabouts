@@ -17,6 +17,8 @@ import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.gms.appdatasearch.GetRecentContextCall;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -94,7 +96,17 @@ public class ChatRoomActivityFragment extends ListFragment {
         updateListener = new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                
+                JSONObject json = ((JSONObject) args[0]);
+                try {
+                    String username = json.get("username").toString();
+                    LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
+                    MarkerOptions newMarker = new MarkerOptions().position(location).title(username);
+                    MapsActivity.markerList.put(username, new MarkerOptions().position(location).title(username));
+                    MapsActivity.mMap.addMarker(newMarker);
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         };
 
@@ -109,7 +121,8 @@ public class ChatRoomActivityFragment extends ListFragment {
                             list.add(json.get("username") + ": " + json.get("text"));
                             adapter.notifyDataSetChanged();
                             getListView().setSelection(list.size() - 1);
-                        } catch (Exception e) {
+                        }
+                        catch (Exception e) {
                             e.printStackTrace();
                         }
                     }

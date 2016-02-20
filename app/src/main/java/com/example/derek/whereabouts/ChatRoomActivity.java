@@ -15,12 +15,13 @@ import android.widget.ListView;
 public class ChatRoomActivity extends AppCompatActivity {
 
     int room;
+    String roomName;
+    String username;
+
     private String[] menuOptions;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,9 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         room = intent.getIntExtra("ROOM_ID", -1);
-        setTitle("Room " + intent.getStringExtra("ROOM_NAME"));
+        roomName = intent.getStringExtra("ROOM_NAME");
+        username = intent.getStringExtra("USERNAME");
+        setTitle("Room " + roomName);
     }
 
         private void setupDrawer() {
@@ -56,7 +59,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         };
 
         mDrawerToggle.setDrawerIndicatorEnabled(true);
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
     }
 
     @Override
@@ -86,6 +89,9 @@ public class ChatRoomActivity extends AppCompatActivity {
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
         public void onItemClick(AdapterView parent, View view, int position, long id) {
             Intent intent = new Intent(view.getContext(), MapsActivity.class);
+            intent.putExtra("ROOM_ID", room);
+            intent.putExtra("ROOM_NAME", roomName);
+            intent.putExtra("USERNAME", username);
             startActivity(intent);
         }
     }

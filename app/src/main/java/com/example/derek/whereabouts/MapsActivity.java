@@ -1,5 +1,6 @@
 package com.example.derek.whereabouts;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.location.Location;
@@ -28,20 +29,25 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private GoogleMap mMap;
+    public static GoogleMap mMap;
     protected GoogleApiClient mGoogleApiClient;
     protected Location mCurrentLocation;
     protected static final String TAG = "whereabouts-app";
     protected LocationRequest mLocationRequest;
     protected MarkerOptions yourMarkerOptions;
     protected Marker yourMarker;
+    static protected HashMap<String, MarkerOptions> markerList = new HashMap<String, MarkerOptions>();
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
-    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 1000;
+    public static final long UPDATE_INTERVAL_IN_MILLISECONDS = 5000;
 
     /**
      * The fastest rate for active location updates. Exact. Updates will never be more frequent
@@ -56,7 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         buildGoogleApiClient();
-        Log.i(TAG, "HERE");
     }
 
     /**
@@ -79,7 +84,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         yourMarkerOptions = new MarkerOptions().position(yourLatLng).title("Your location");
         yourMarker = mMap.addMarker(yourMarkerOptions);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(yourLatLng));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yourLatLng, 16.0f));
     }
 
     @Override
@@ -125,6 +130,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
         LatLng yourLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+        JSONObject data = new JSONObject();
+        try {
+            Intent intent = getIntent();
+            data.put("username",intent.getStringExtra("USERNAME"));
+            data.put("room", intent.getStringExtra("ROOM_NAME"));
+            data.put("latitude", mCurrentLocation.getLatitude());
+            data.put("longitude", mCurrentLocation.getLongitude());
+            ChatRoomActivityFragment.mSocket.emit("update", data);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
         animateMarker(yourMarker, yourLatLng, false);
     }
 
