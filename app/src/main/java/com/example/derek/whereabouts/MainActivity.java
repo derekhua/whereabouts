@@ -1,5 +1,6 @@
 package com.example.derek.whereabouts;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,20 +8,26 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     String username;
+    List<Chat> chats = new ArrayList<Chat>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         final AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
@@ -68,17 +77,16 @@ public class MainActivity extends AppCompatActivity {
         // Initialize chat room list
         final ListView listView = (ListView) findViewById(R.id.listView);
         String[] values = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
-        final ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < values.length; ++i) {
-            list.add(values[i]);
+            chats.add(new Chat(android.R.drawable.ic_media_play, values[i]));
         }
-        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
+        final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String item = (String)listView.getItemAtPosition(position);
+                String item = ((Chat)listView.getItemAtPosition(position)).name;
                 Toast.makeText(getApplicationContext(), "Joining chatroom " + item,
                         Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), ChatRoomActivity.class);
@@ -110,5 +118,59 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private class Chat {
+
+        int icon;
+        String name;
+
+        private Chat(int icon, String name) {
+            this.icon = icon;
+            this.name = name;
+        }
+    }
+
+    private class ChatAdapter extends ArrayAdapter {
+
+        Context context;
+
+        private ChatAdapter(Context context) {
+            super(context, R.layout.chat_room_entry, chats);
+            this.context = context;
+        }
+
+        @Override
+        public int getCount() {
+            return chats.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return chats.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            if (convertView == null) {
+                LayoutInflater inflater = (LayoutInflater) context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = inflater.inflate(R.layout.chat_room_entry, null);
+            }
+
+            ImageView icon = (ImageView)convertView.findViewById(R.id.chat_icon);
+            TextView name = (TextView)convertView.findViewById(R.id.chat_title);
+
+            icon.setImageResource(chats.get(position).icon);
+            name.setText(chats.get(position).name);
+
+            return convertView;
+        }
     }
 }
