@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Joining chatroom " + item,
                         Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), ChatRoomActivity.class);
-                intent.putExtra("ROOM_ID", item);
+                intent.putExtra("ROOM_ID", Integer.parseInt(item));
                 intent.putExtra("ROOM_NAME", item);
                 intent.putExtra("USERNAME", username);
                 startActivity(intent);
