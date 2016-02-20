@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Create username alert dialog
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Set username");
         builder.setMessage("(4 to 20 characters)");
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
+        // Enable "Done" button only if username is valid
         input.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
@@ -63,14 +65,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Initialize chat room list
         final ListView listView = (ListView) findViewById(R.id.listView);
         String[] values = new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
         final ArrayList<String> list = new ArrayList<String>();
         for (int i = 0; i < values.length; ++i) {
             list.add(values[i]);
         }
-        final ArrayAdapter adapter = new ArrayAdapter(this,
-                android.R.layout.simple_list_item_1, list);
+        final ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
 
         listView.setOnItemClickListener(new android.widget.AdapterView.OnItemClickListener() {
@@ -81,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), ChatRoomActivity.class);
                 intent.putExtra("ROOM_ID", item);
+                intent.putExtra("ROOM_NAME", item);
+                intent.putExtra("USERNAME", username);
                 startActivity(intent);
             }
         });

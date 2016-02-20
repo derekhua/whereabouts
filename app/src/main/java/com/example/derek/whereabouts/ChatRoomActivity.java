@@ -8,12 +8,15 @@ import android.view.MenuItem;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
+    int room;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
         Intent intent = getIntent();
-        setTitle(intent.getStringExtra("ROOM_ID"));
+        room = intent.getIntExtra("ROOM_ID", -1);
+        setTitle("Room " + intent.getStringExtra("ROOM_NAME"));
     }
 
     @Override
