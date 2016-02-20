@@ -21,6 +21,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         setTitle("Room " + intent.getStringExtra("ROOM_NAME"));
     }
 
-    private void setupDrawer() {
+        private void setupDrawer() {
         mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
 
             public void onDrawerOpened(View view) {
