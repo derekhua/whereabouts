@@ -18,13 +18,17 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.gms.appdatasearch.GetRecentContextCall;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -133,20 +137,65 @@ public class ChatRoomActivityFragment extends ListFragment {
                     data.put("text", text);
                     data.put("room", room);
 
-                    if(!text.trim().equals("")) {
+                    if (!text.trim().equals("")) {
                         mSocket.emit("chat", data);
                         list.add(username + ": " + text.trim());
                         adapter.notifyDataSetChanged();
                         getListView().setSelection(list.size() - 1);
                         input.setText("");
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
 
+
+        class JSONAsyncTask extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... params) {
+                // Get chat history
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL url = new URL("http://ec2-54-165-233-14.compute-1.amazonaws.com:3000/rooms/" + room);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setChunkedStreamingMode(0);
+
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    StringBuilder result = new StringBuilder();
+                    while((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    JSONObject jsonObj = new JSONObject(result.toString());
+
+                    JSONArray jsonArray = (JSONArray)jsonObj.get("chatHistory");
+                    if (jsonArray != null) {
+                        int len = jsonArray.length();
+                        for (int i=0;i<len;i++){
+                            JSONObject chat = (JSONObject) jsonArray.get(i);
+                            list.add(chat.get("username") + ": " + chat.get("text"));
+                        }
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            getListView().setSelection(list.size() - 1);
+                        }
+                    });
+                    urlConnection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }
+        JSONAsyncTask task = new JSONAsyncTask();
+        task.execute();
     }
 
     @Override
