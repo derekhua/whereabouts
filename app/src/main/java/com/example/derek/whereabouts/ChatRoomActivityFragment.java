@@ -1,6 +1,7 @@
 package com.example.derek.whereabouts;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.util.Log;
@@ -16,13 +17,20 @@ import android.widget.TextView;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
-import com.google.android.gms.appdatasearch.GetRecentContextCall;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 /**
@@ -53,12 +61,15 @@ public class ChatRoomActivityFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         final ArrayAdapter adapter = new MessageAdapter(getContext());
         setListAdapter(adapter);
         final EditText input = (EditText) getActivity().findViewById(R.id.editText);
         final Button button = (Button) getActivity().findViewById(R.id.button);
         final String username = getActivity().getIntent().getStringExtra("USERNAME");
         final String room = getActivity().getIntent().getStringExtra("ROOM_NAME");
+
+        getListView().setDivider(null);
 
         JSONObject data = new JSONObject();
         try {
@@ -69,7 +80,6 @@ public class ChatRoomActivityFragment extends ListFragment {
             e.printStackTrace();
         }
         mSocket.emit("subscribe", data);
-
 
         connectEmitter = new Emitter.Listener() {
             @Override
@@ -147,7 +157,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                     data.put("text", text);
                     data.put("room", room);
 
-                    if(!text.trim().equals("")) {
+                    if (!text.trim().equals("")) {
                         mSocket.emit("chat", data);
                         messages.add(new Message(android.R.drawable.ic_media_play,
                                 username, text.trim(), "00:00"));
@@ -155,13 +165,59 @@ public class ChatRoomActivityFragment extends ListFragment {
                         getListView().setSelection(messages.size() - 1);
                         input.setText("");
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
         });
 
+
+        class JSONAsyncTask extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... params) {
+                // Get chat history
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL url = new URL("http://ec2-54-165-233-14.compute-1.amazonaws.com:3000/rooms/" + room);
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setChunkedStreamingMode(0);
+
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    StringBuilder result = new StringBuilder();
+                    while((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    JSONObject jsonObj = new JSONObject(result.toString());
+
+                    JSONArray jsonArray = (JSONArray)jsonObj.get("chatHistory");
+                    if (jsonArray != null) {
+                        int len = jsonArray.length();
+                        for (int i=0;i<len;i++){
+                            JSONObject chat = (JSONObject) jsonArray.get(i);
+                            messages.add(new Message(android.R.drawable.ic_media_play,
+                                    ((String)chat.get("username")).trim(), ((String)chat.get("text")).trim(), "00:00"));
+                        }
+                    }
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.notifyDataSetChanged();
+                            getListView().setSelection(messages.size() - 1);
+                        }
+                    });
+                    urlConnection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }
+        JSONAsyncTask task = new JSONAsyncTask();
+        task.execute();
     }
 
     @Override
