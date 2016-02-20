@@ -10,6 +10,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
     int room;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -18,6 +19,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         room = intent.getIntExtra("ROOM_ID", -1);
         setTitle("Room " + intent.getStringExtra("ROOM_NAME"));
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -40,4 +43,5 @@ public class ChatRoomActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
