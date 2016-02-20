@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         final AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
         dialog.show();
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
 
@@ -157,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
 
             if (convertView == null) {
-                LayoutInflater inflater = (LayoutInflater)context
+                LayoutInflater inflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.chat_room_entry, null);
             }

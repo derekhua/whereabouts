@@ -49,12 +49,15 @@ public class ChatRoomActivityFragment extends ListFragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         final ArrayAdapter adapter = new MessageAdapter(getContext());
         setListAdapter(adapter);
         final EditText input = (EditText) getActivity().findViewById(R.id.editText);
         final Button button = (Button) getActivity().findViewById(R.id.button);
         final String username = getActivity().getIntent().getStringExtra("USERNAME");
         final String room = getActivity().getIntent().getStringExtra("ROOM_NAME");
+
+        getListView().setDivider(null);
 
         JSONObject data = new JSONObject();
         try {
@@ -65,7 +68,6 @@ public class ChatRoomActivityFragment extends ListFragment {
             e.printStackTrace();
         }
         mSocket.emit("subscribe", data);
-
 
         connectEmitter = new Emitter.Listener() {
             @Override
