@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -70,6 +71,7 @@ public class ChatRoomActivityFragment extends ListFragment {
         final String room = getActivity().getIntent().getStringExtra("ROOM_NAME");
 
         getListView().setDivider(null);
+        getListView().setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 
         JSONObject data = new JSONObject();
         try {
@@ -132,7 +134,6 @@ public class ChatRoomActivityFragment extends ListFragment {
                             messages.add(new Message(android.R.drawable.ic_media_play,
                                     json.get("username") + "", json.get("text") + "", "00:00"));
                             adapter.notifyDataSetChanged();
-                            getListView().setSelection(messages.size() - 1);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -162,7 +163,6 @@ public class ChatRoomActivityFragment extends ListFragment {
                         messages.add(new Message(android.R.drawable.ic_media_play,
                                 username, text.trim(), "00:00"));
                         adapter.notifyDataSetChanged();
-                        getListView().setSelection(messages.size() - 1);
                         input.setText("");
                     }
                 } catch (Exception e) {
@@ -206,7 +206,6 @@ public class ChatRoomActivityFragment extends ListFragment {
                         @Override
                         public void run() {
                             adapter.notifyDataSetChanged();
-                            getListView().setSelection(messages.size() - 1);
                         }
                     });
                     urlConnection.disconnect();
