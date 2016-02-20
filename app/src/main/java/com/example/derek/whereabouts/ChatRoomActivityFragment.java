@@ -188,7 +188,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                         for (int i=0;i<len;i++){
                             JSONObject chat = (JSONObject) jsonArray.get(i);
                             messages.add(new Message(android.R.drawable.ic_media_play,
-                                    username, ((String)chat.get("text")).trim(), "00:00"));
+                                    ((String)chat.get("username")).trim(), ((String)chat.get("text")).trim(), "00:00"));
                         }
                     }
 
