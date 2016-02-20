@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -29,8 +30,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -85,6 +93,55 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         yourMarker = mMap.addMarker(yourMarkerOptions);
 
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yourLatLng, 16.0f));
+
+        class JSONAsyncTask extends AsyncTask<Void, Void, Void> {
+            @Override
+            protected Void doInBackground(Void... params) {
+                // Get chat history
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL url = new URL("http://ec2-54-165-233-14.compute-1.amazonaws.com:3000/rooms/" + getIntent().getStringExtra("ROOM_NAME"));
+                    urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setChunkedStreamingMode(0);
+
+                    InputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                    String line;
+                    StringBuilder result = new StringBuilder();
+                    while((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+
+                    JSONObject jsonObj = new JSONObject(result.toString());
+
+                    JSONArray jsonArray = (JSONArray)jsonObj.get("locationHistory");
+                    if (jsonArray != null) {
+                        int len = jsonArray.length();
+                        for (int i=0;i<len;i++){
+                            JSONObject jsonLocation = (JSONObject) jsonArray.get(i);
+                            String username = jsonLocation.get("username").toString();
+                            LatLng location = new LatLng(Double.parseDouble(jsonLocation.get("latitude").toString()),
+                                    Double.parseDouble(jsonLocation.get("longitude").toString()));
+                            if (markerList.get(username) == null) {
+                                MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username);
+                                markerList.put(username, mMap.addMarker(newMarkerOps));
+                            }
+                            else {
+                                Marker marker = markerList.get(username);
+                                MapsActivity.animateMarker(marker, location, false);
+                            }
+                        }
+                    }
+
+                    urlConnection.disconnect();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        }
+        JSONAsyncTask task = new JSONAsyncTask();
+        task.execute();
     }
 
     @Override
