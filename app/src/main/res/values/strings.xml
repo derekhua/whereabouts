@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">whereabouts</string>
+    <string name="google_app_id">278782568598</string>
+
+    <string name="title_activity_chat_room">Chat Room</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_main">Chat List</string>
+
+    <string name="action_settings">Settings</string>
 </resources>
