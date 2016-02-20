@@ -43,7 +43,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected LocationRequest mLocationRequest;
     protected MarkerOptions yourMarkerOptions;
     protected Marker yourMarker;
-    static protected HashMap<String, MarkerOptions> markerList = new HashMap<String, MarkerOptions>();
+    static protected HashMap<String, Marker> markerList = new HashMap<String, Marker>();
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -170,7 +170,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    public void animateMarker(final Marker marker, final LatLng toPosition, final boolean hideMarker) {
+    public static void animateMarker(final Marker marker, final LatLng toPosition, final boolean hideMarker) {
         final Handler handler = new Handler();
         final long start = SystemClock.uptimeMillis();
         Projection proj = mMap.getProjection();

@@ -18,6 +18,7 @@ import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 import com.google.android.gms.appdatasearch.GetRecentContextCall;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
@@ -86,18 +87,27 @@ public class ChatRoomActivityFragment extends ListFragment {
 
         updateListener = new Emitter.Listener() {
             @Override
-            public void call(Object... args) {
-                JSONObject json = ((JSONObject) args[0]);
-                try {
-                    String username = json.get("username").toString();
-                    LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
-                    MarkerOptions newMarker = new MarkerOptions().position(location).title(username);
-                    MapsActivity.markerList.put(username, new MarkerOptions().position(location).title(username));
-                    MapsActivity.mMap.addMarker(newMarker);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+            public void call(final Object... args) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        JSONObject json = ((JSONObject) args[0]);
+                        try {
+                            String username = json.get("username").toString();
+                            LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
+                            if (MapsActivity.markerList.get(username) == null) {
+                                MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username);
+                                MapsActivity.markerList.put(username, MapsActivity.mMap.addMarker(newMarkerOps));
+                            }
+                            else {
+                                Marker marker = MapsActivity.markerList.get(username);
+                                MapsActivity.animateMarker(marker, location, false);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
             }
         };
 
