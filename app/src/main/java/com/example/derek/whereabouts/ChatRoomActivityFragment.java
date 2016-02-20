@@ -107,11 +107,10 @@ public class ChatRoomActivityFragment extends ListFragment {
                         try {
                             String username = json.get("username").toString();
                             LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
-                            if (MapsActivity.markerList.get(username) == null) {
+                            if (MapsActivity.markerList.get(username) == null && !username.equals(getActivity().getIntent().getStringExtra("USERNAME"))) {
                                 MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username);
                                 MapsActivity.markerList.put(username, MapsActivity.mMap.addMarker(newMarkerOps));
-                            }
-                            else {
+                            } else {
                                 Marker marker = MapsActivity.markerList.get(username);
                                 MapsActivity.animateMarker(marker, location, false);
                             }
