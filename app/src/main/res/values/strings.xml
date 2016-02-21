@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">whereabouts</string>
     <string name="google_app_id">278782568598</string>
+    <string name="facebook_app_id">995721923810450</string>
 
     <string name="title_activity_chat_room">Chat Room</string>
     <string name="title_activity_maps">Map</string>
