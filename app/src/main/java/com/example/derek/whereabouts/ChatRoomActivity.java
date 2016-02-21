@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.facebook.appevents.AppEventsLogger;
 
 public class ChatRoomActivity extends ActionBarActivity {
 
@@ -24,6 +25,14 @@ public class ChatRoomActivity extends ActionBarActivity {
         roomName = intent.getStringExtra("ROOM_NAME");
         username = intent.getStringExtra("USERNAME");
         setTitle("Room " + roomName);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override

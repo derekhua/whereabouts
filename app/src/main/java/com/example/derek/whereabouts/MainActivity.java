@@ -25,6 +25,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.ProfileTracker;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -32,13 +33,21 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
+import com.facebook.appevents.AppEventsLogger;
+
+
 public class MainActivity extends AppCompatActivity {
 
     public final static String USERNAME = "username";
     String localUser;
-    List<Chat> chats = new ArrayList<Chat>();
+    List<Chat> chats = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
+
+    Profile facebookProfile;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -48,58 +57,35 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         sharedPref = getSharedPreferences(USERNAME, Context.MODE_PRIVATE);
-        editor = sharedPref.edit();
         String restoredText = sharedPref.getString(USERNAME, null);
+        FacebookSdk.sdkInitialize(this.getApplicationContext());
+
+        // Facebook tracker
+        ProfileTracker profileTracker = new ProfileTracker() {
+            @Override
+            protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+                this.stopTracking();
+                Profile.setCurrentProfile(currentProfile);
+                Log.d("facebook ---", Profile.getCurrentProfile().getName());
+                localUser = Profile.getCurrentProfile().getName();
+            }
+        };
+        profileTracker.startTracking();
+
+
+        FacebookSdk.sdkInitialize(this.getApplicationContext());
+
+        Log.d("facebook ---", "main activity");
+
         if (restoredText == null) {
-            // Create username alert dialog
-            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Set username");
-            builder.setMessage("(4 to 20 characters)");
-            builder.setIcon(android.R.drawable.ic_dialog_alert);
-            final EditText input = new EditText(this);
-            builder.setView(input);
-            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int button) {
-                    localUser = input.getText().toString().trim();
-                    Toast.makeText(getApplicationContext(), "Username set to \"" + localUser + "\"",
-                            Toast.LENGTH_SHORT).show();
-                    editor.putString(USERNAME, localUser);
-                    editor.commit();
-                    Log.d("output", localUser);
-                }
-            });
-            final AlertDialog dialog = builder.create();
-            dialog.setCancelable(false);
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-
-            // Enable "Done" button only if username is valid
-            input.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                }
-
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    String str = s.toString();
-                    if (str.length() < 4 || str.length() > 20) {
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
-                    } else {
-                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
-                    }
-
-                }
-            });
-        } else {
-            localUser = sharedPref.getString(USERNAME, "No Name Defined");
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
         }
+
+
         // Initialize chat room list
         final ListView listView = (ListView) findViewById(R.id.listView);
         String[] values = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
@@ -125,6 +111,22 @@ public class MainActivity extends AppCompatActivity {
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Logs 'install' and 'app activate' App Events.
+        AppEventsLogger.activateApp(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override
