@@ -68,8 +68,9 @@ public class GpsService extends Service implements
             LatLng yourLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
             JSONObject data = new JSONObject();
             try {
+                //Toast.makeText(this, ChatRoomActivity.username + " " + ChatRoomActivity.roomName, Toast.LENGTH_SHORT).show();
                 data.put("username", ChatRoomActivity.username);
-                data.put("room", ChatRoomActivity.roomName);
+                data.put("room", ChatRoomActivity.roomID);
                 data.put("latitude", mCurrentLocation.getLatitude());
                 data.put("longitude", mCurrentLocation.getLongitude());
                 ChatRoomActivityFragment.mSocket.emit("update", data);
@@ -78,7 +79,7 @@ public class GpsService extends Service implements
             }
         }
 
-        //Toast.makeText(this, ChatRoomActivity.username + " " + ChatRoomActivity.roomName, Toast.LENGTH_SHORT).show();
+
     }
 
     protected synchronized void buildGoogleApiClient() {

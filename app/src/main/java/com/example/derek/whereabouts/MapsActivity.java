@@ -209,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             Intent intent = getIntent();
             data.put("username",intent.getStringExtra("USERNAME"));
-            data.put("room", intent.getStringExtra("ROOM_NAME"));
+            data.put("room", intent.getStringExtra("ROOM_ID"));
             data.put("latitude", mCurrentLocation.getLatitude());
             data.put("longitude", mCurrentLocation.getLongitude());
             ChatRoomActivityFragment.mSocket.emit("update", data);

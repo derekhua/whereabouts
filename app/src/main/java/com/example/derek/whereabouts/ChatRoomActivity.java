@@ -9,7 +9,7 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class ChatRoomActivity extends ActionBarActivity {
 
-    String roomID;
+    static String roomID;
     static String roomName;
     static String username;
 
