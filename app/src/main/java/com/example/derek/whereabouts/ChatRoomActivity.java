@@ -77,7 +77,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_toggle_night) {
             return true;
         }
         if (mDrawerToggle.onOptionsItemSelected(item)) {

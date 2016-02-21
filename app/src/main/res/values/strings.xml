@@ -6,9 +6,9 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main">Chat List</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_new_room">New Room</string>
+    <string name="action_toggle_night">Toggle Night Mode</string>
 
     <string name="drawer_open">Open Navigation Drawer</string>
     <string name="drawer_close">Close Navigation Drawer</string>
-    <string name="username"></string>
 </resources>
