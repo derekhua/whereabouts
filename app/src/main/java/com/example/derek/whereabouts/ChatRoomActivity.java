@@ -2,40 +2,23 @@ package com.example.derek.whereabouts;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import com.facebook.appevents.AppEventsLogger;
 
-public class ChatRoomActivity extends AppCompatActivity {
+public class ChatRoomActivity extends ActionBarActivity {
 
     int room;
     String roomName;
     String username;
 
     private String[] menuOptions;
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
-        menuOptions = new String[]{"Chats", "Map"};
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, R.layout.drawer_list_item, menuOptions));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        setupDrawer();
 
         Intent intent = getIntent();
         room = intent.getIntExtra("ROOM_ID", -1);
@@ -44,22 +27,12 @@ public class ChatRoomActivity extends AppCompatActivity {
         setTitle("Room " + roomName);
     }
 
-        private void setupDrawer() {
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open, R.string.drawer_close) {
+    @Override
+    protected void onPause() {
+        super.onPause();
 
-            public void onDrawerOpened(View view) {
-                super.onDrawerOpened(view);
-                invalidateOptionsMenu();
-            }
-
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                invalidateOptionsMenu();
-            }
-        };
-
-        mDrawerToggle.setDrawerIndicatorEnabled(true);
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
     }
 
     @Override
@@ -79,22 +52,14 @@ public class ChatRoomActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_toggle_night) {
             return true;
+        } else if (id == R.id.action_map) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            intent.putExtra("ROOM_ID", room);
+            intent.putExtra("ROOM_NAME", roomName);
+            intent.putExtra("USERNAME", username);
+            startActivity(intent);
         }
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        public void onItemClick(AdapterView parent, View view, int position, long id) {
-            if (position == 1) {
-                Intent intent = new Intent(view.getContext(), MapsActivity.class);
-                intent.putExtra("ROOM_ID", room);
-                intent.putExtra("ROOM_NAME", roomName);
-                intent.putExtra("USERNAME", username);
-                startActivity(intent);
-            }
-        }
+        return super.onOptionsItemSelected(item);
     }
 }

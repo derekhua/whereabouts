@@ -3,6 +3,7 @@ package com.example.derek.whereabouts;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -49,9 +52,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected Location mCurrentLocation;
     protected static final String TAG = "whereabouts-app";
     protected LocationRequest mLocationRequest;
-    protected MarkerOptions yourMarkerOptions;
-    protected Marker yourMarker;
     static protected HashMap<String, Marker> markerList = new HashMap<String, Marker>();
+    static public HashMap<String, Integer> drawableMap = new HashMap<String, Integer>();
+
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -67,9 +70,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (drawableMap.isEmpty()) {
+            initializeDrawableMap();
+        }
         setContentView(R.layout.activity_maps);
 
         buildGoogleApiClient();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Logs 'app deactivate' App Event.
+        AppEventsLogger.deactivateApp(this);
     }
 
     /**
@@ -87,11 +101,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        if ( ContextCompat.checkSelfPermission(MapsActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+            ActivityCompat.requestPermissions(MapsActivity.this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 12);
+        }
+        mMap.setMyLocationEnabled(true);
 
         LatLng yourLatLng = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-        yourMarkerOptions = new MarkerOptions().position(yourLatLng).title("Your location");
-        yourMarker = mMap.addMarker(yourMarkerOptions);
-
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(yourLatLng, 16.0f));
 
         class JSONAsyncTask extends AsyncTask<Void, Void, Void> {
@@ -122,9 +137,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             String username = jsonLocation.get("username").toString();
                             LatLng location = new LatLng(Double.parseDouble(jsonLocation.get("latitude").toString()),
                                     Double.parseDouble(jsonLocation.get("longitude").toString()));
-                            System.out.println("TEST2 " + getIntent().getStringExtra("USERNAME") + " " + username);
                             if (markerList.get(username) == null && !username.equals(getIntent().getStringExtra("USERNAME"))) {
-                                MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username);
+                                MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username)
+                                        .icon(BitmapDescriptorFactory.fromResource( MapsActivity.drawableMap.get(("" + username.charAt(0)).toLowerCase())));
                                 markerList.put(username, mMap.addMarker(newMarkerOps));
                             }
                             else {
@@ -201,7 +216,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
 
-        animateMarker(yourMarker, yourLatLng, false);
     }
 
     protected void startLocationUpdates() {
@@ -259,6 +273,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+    }
+
+    public static void initializeDrawableMap() {
+        drawableMap.put("a", R.drawable.a);
+        drawableMap.put("b", R.drawable.b);
+        drawableMap.put("c", R.drawable.c);
+        drawableMap.put("d", R.drawable.d);
+        drawableMap.put("e", R.drawable.e);
+        drawableMap.put("f", R.drawable.f);
+        drawableMap.put("g", R.drawable.g);
+        drawableMap.put("h", R.drawable.h);
+        drawableMap.put("i", R.drawable.i);
+        drawableMap.put("j", R.drawable.j);
+        drawableMap.put("k", R.drawable.k);
+        drawableMap.put("l", R.drawable.l);
+        drawableMap.put("m", R.drawable.m);
+        drawableMap.put("n", R.drawable.n);
+        drawableMap.put("o", R.drawable.o);
+        drawableMap.put("p", R.drawable.p);
+        drawableMap.put("q", R.drawable.q);
+        drawableMap.put("r", R.drawable.r);
+        drawableMap.put("s", R.drawable.s);
+        drawableMap.put("t", R.drawable.t);
+        drawableMap.put("u", R.drawable.u);
+        drawableMap.put("v", R.drawable.v);
+        drawableMap.put("w", R.drawable.w);
+        drawableMap.put("x", R.drawable.x);
+        drawableMap.put("y", R.drawable.y);
+        drawableMap.put("z", R.drawable.z);
     }
 
     //returns distance in miles between two coordinates
