@@ -43,10 +43,10 @@ import java.util.Calendar;
  */
 public class ChatRoomActivityFragment extends ListFragment {
 
+    public final static String PREFS = "sharedPrefsString";
     final ArrayList<Message> messages = new ArrayList<Message>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-    public final static String SAVEDID = "savedID";
 
     public static Socket mSocket;
     {
@@ -78,7 +78,7 @@ public class ChatRoomActivityFragment extends ListFragment {
         final String roomName = getActivity().getIntent().getStringExtra("ROOM_NAME");
         final String roomId = getActivity().getIntent().getStringExtra("ROOM_ID");
 
-        sharedPref = getActivity().getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
+        sharedPref = getActivity().getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 
         MapsActivity.initializeDrawableMap();
         getListView().setDivider(null);

@@ -27,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     LoginButton loginButton;
     CallbackManager callbackManager;
     public final static String SAVEDID = "savedID";
+    public final static String PREFS = "sharedPrefsString";
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
     private ProfileTracker mProfileTracker;
@@ -39,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_login);
 
-        sharedPref = getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
 
         editor = sharedPref.edit();
 
