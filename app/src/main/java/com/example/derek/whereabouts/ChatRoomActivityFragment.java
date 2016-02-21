@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -142,9 +143,14 @@ public class ChatRoomActivityFragment extends ListFragment {
                     @Override
                     public void run() {
                         JSONObject json = ((JSONObject) args[0]);
+                        Calendar c = Calendar.getInstance();
+                        int hour = c.HOUR;
+                        int min = c.MINUTE;
+                        Toast.makeText(getContext(), "chatListener called", Toast.LENGTH_SHORT);
                         try {
+                            Log.d("debugging", json.get("username").toString());
                             messages.add(new Message(android.R.drawable.ic_media_play,
-                                    json.get("username") + "", json.get("text") + "", "00:00"));
+                                    json.get("username") + "", json.get("text") + "", "2:00"));
                             adapter.notifyDataSetChanged();
                         } catch (Exception e) {
                             e.printStackTrace();
