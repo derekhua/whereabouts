@@ -88,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d("facebook ---", "main activity");
 
         if (restoredText == null) {
-            localUser = sharedPref.getString(USERNAME, "No Name Defined");
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
