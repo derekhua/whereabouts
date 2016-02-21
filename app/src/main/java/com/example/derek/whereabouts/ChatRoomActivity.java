@@ -9,11 +9,9 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class ChatRoomActivity extends ActionBarActivity {
 
-    int room;
+    String roomID;
     String roomName;
     String username;
-
-    private String[] menuOptions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,10 +19,10 @@ public class ChatRoomActivity extends ActionBarActivity {
         setContentView(R.layout.activity_chat_room);
 
         Intent intent = getIntent();
-        room = intent.getIntExtra("ROOM_ID", -1);
+        roomID = intent.getStringExtra("ROOM_ID");
         roomName = intent.getStringExtra("ROOM_NAME");
         username = intent.getStringExtra("USERNAME");
-        setTitle("Room " + roomName);
+        setTitle(roomName + " - " + roomID);
     }
 
     @Override
@@ -49,12 +47,11 @@ public class ChatRoomActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_toggle_night) {
             return true;
         } else if (id == R.id.action_map) {
             Intent intent = new Intent(this, MapsActivity.class);
-            intent.putExtra("ROOM_ID", room);
+            intent.putExtra("ROOM_ID", roomID);
             intent.putExtra("ROOM_NAME", roomName);
             intent.putExtra("USERNAME", username);
             startActivity(intent);

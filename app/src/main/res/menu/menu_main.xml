@@ -5,8 +5,14 @@
 
     <item
         android:id="@+id/action_new_room"
-        android:icon="@drawable/common_plus_signin_btn_icon_dark_normal"
+        android:icon="@drawable/ic_add_to_queue_black_24dp"
         android:title="@string/action_new_room"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_join_room"
+        android:icon="@drawable/ic_airplay_black_24dp"
+        android:title="@string/action_join_room"
         app:showAsAction="ifRoom"/>
 
     <item android:id="@+id/action_toggle_night"

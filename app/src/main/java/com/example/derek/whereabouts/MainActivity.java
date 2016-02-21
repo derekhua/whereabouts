@@ -32,6 +32,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.facebook.FacebookSdk;
 import com.facebook.Profile;
@@ -42,12 +43,11 @@ public class MainActivity extends AppCompatActivity {
 
     public final static String SAVEDID = "savedID";
     public final static String DISPLAYNAME = "displayName";
+
     String localUser;
     List<Chat> chats = new ArrayList<>();
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
-
-    Profile facebookProfile;
 
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -94,22 +94,22 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize chat room list
         final ListView listView = (ListView) findViewById(R.id.listView);
-        String[] values = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
-        for (int i = 0; i < values.length; ++i) {
-            chats.add(new Chat(android.R.drawable.ic_media_play, "0", values[i]));
-        }
         final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
+        for (int i = 0; i < sharedPref.getInt("NUMROOMS", 0); i++) {
+
+            // TODO Server request
+        }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String item = ((Chat) listView.getItemAtPosition(position)).name;
-                Toast.makeText(getApplicationContext(), "Joining chatroom " + item,
+                Chat chat = (Chat) listView.getItemAtPosition(position);
+                Toast.makeText(getApplicationContext(), "Joining chatroom " + chat.name,
                         Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(view.getContext(), ChatRoomActivity.class);
-                intent.putExtra("ROOM_ID", Integer.parseInt(item));
-                intent.putExtra("ROOM_NAME", item);
+                intent.putExtra("ROOM_ID", chat.id);
+                intent.putExtra("ROOM_NAME", chat.name);
                 intent.putExtra("USERNAME", localUser);
                 startActivity(intent);
             }
@@ -152,15 +152,86 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_new_room) {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Create new room");
-            builder.setMessage("(4 to 20 characters)");
+            builder.setMessage("Enter room name (4 to 20 characters):");
             builder.setIcon(android.R.drawable.ic_dialog_alert);
             final EditText input = new EditText(this);
             builder.setView(input);
             builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int button) {
                     String newRoom = input.getText().toString().trim();
+
+                    // ID generator
+                    StringBuilder tmp = new StringBuilder();
+                    for (char ch = '0'; ch <= '9'; ++ch)
+                        tmp.append(ch);
+                    for (char ch = 'a'; ch <= 'z'; ++ch)
+                        tmp.append(ch);
+                    char[] symbols = tmp.toString().toCharArray();
+                    String id = "";
+                    Random random = new Random();
+                    for (int i = 0; i < 10; i++) {
+                        id += (symbols[random.nextInt(symbols.length)]);
+                    }
+
                     Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
                             "\" has been created", Toast.LENGTH_SHORT).show();
+                    chats.add(new Chat(android.R.drawable.ic_media_play,
+                            id.toUpperCase(), newRoom));
+
+                    editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
+                    editor.apply();
+                    editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
+                    editor.apply();
+                }
+            });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+            // Enable "Done" button only if room name is valid
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String str = s.toString();
+                    if (str.length() < 4 || str.length() > 20) {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    } else {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    }
+                }
+            });
+            return true;
+        } else if (id == R.id.action_join_room) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Join existing room");
+            builder.setMessage("Enter room ID (10 characters):");
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+            final EditText input = new EditText(this);
+            builder.setView(input);
+            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int button) {
+                    String id = input.getText().toString().trim();
+
+                    // TODO Server request
+                    String newRoom = "Test";
+
+                    Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
+                            "\" has been joined", Toast.LENGTH_SHORT).show();
+                    chats.add(new Chat(android.R.drawable.ic_media_play,
+                            id.toUpperCase(), newRoom));
+
+                    editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
+                    editor.apply();
+                    editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
+                    editor.apply();
                 }
             });
             final AlertDialog dialog = builder.create();
@@ -197,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 setTheme(R.style.LightTheme);
             }
-            recreate();
             return true;
         }
 

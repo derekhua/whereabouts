@@ -9,6 +9,7 @@
 
     <string name="action_map">Map</string>
     <string name="action_new_room">New Room</string>
+    <string name="action_join_room">Join Room</string>
     <string name="action_toggle_night">Toggle Night Mode</string>
 
     <string name="drawer_open">Open Navigation Drawer</string>
