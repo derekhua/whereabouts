@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     public final static String USERNAME = "username";
     SharedPreferences sharedPref;
     SharedPreferences.Editor editor;
+    private ProfileTracker mProfileTracker;
 
 
     @Override
@@ -49,20 +50,25 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                Log.d("Facebook", "onSuccess: ");
                 // App code
                 editor.putString(USERNAME, loginResult.getAccessToken().getUserId());
                 editor.apply();
 
-                ProfileTracker profileTracker = new ProfileTracker() {
-                    @Override
-                    protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                        this.stopTracking();
-                        Profile.setCurrentProfile(currentProfile);
-                        Log.d("facebook", Profile.getCurrentProfile().getName());
-                    }
-                };
-                profileTracker.startTracking();
+                if(Profile.getCurrentProfile() == null) {
+                    mProfileTracker = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
+                            // profile2 is the new profile
+                            Log.v("facebook - profile", profile2.getFirstName());
+                            mProfileTracker.stopTracking();
+                        }
+                    };
+                    mProfileTracker.startTracking();
+                }
+                else {
+                    Profile profile = Profile.getCurrentProfile();
+                    Log.v("facebook - profile", profile.getFirstName());
+                }
 
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
@@ -70,14 +76,14 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancel() {
-                Log.d("Facebook", "onCancel: ");
+                Log.d("facebook ---", "onCancel: ");
                 // App code
 
             }
 
             @Override
             public void onError(FacebookException exception) {
-                Log.d("Facebook", "onError: ");
+                Log.d("facebook ---", "onError: ");
                 // App code
 
             }
