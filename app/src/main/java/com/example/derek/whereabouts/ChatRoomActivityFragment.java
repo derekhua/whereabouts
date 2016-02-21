@@ -111,7 +111,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                             LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
                             if (MapsActivity.markerList.get(username) == null && !username.equals(getActivity().getIntent().getStringExtra("USERNAME"))) {
                                 MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username)
-                                        .icon(BitmapDescriptorFactory.fromResource(MapsActivity.drawableMap.get(username.charAt(0))));
+                                        .icon(BitmapDescriptorFactory.fromResource(MapsActivity.drawableMap.get("" + username.charAt(0))));
                                 MapsActivity.markerList.put(username, MapsActivity.mMap.addMarker(newMarkerOps));
                             } else {
                                 Marker marker = MapsActivity.markerList.get(username);
