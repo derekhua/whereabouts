@@ -40,7 +40,8 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class MainActivity extends AppCompatActivity {
 
-    public final static String USERNAME = "username";
+    public final static String SAVEDID = "savedID";
+    public final static String DISPLAYNAME = "displayName";
     String localUser;
     List<Chat> chats = new ArrayList<>();
     SharedPreferences sharedPref;
@@ -59,8 +60,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        sharedPref = getSharedPreferences(USERNAME, Context.MODE_PRIVATE);
-        String restoredText = sharedPref.getString(USERNAME, null);
+        sharedPref = getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
+
+        String restoredText = sharedPref.getString(SAVEDID, null);
+        localUser = sharedPref.getString(DISPLAYNAME, "user");
+
         FacebookSdk.sdkInitialize(this.getApplicationContext());
 
         // Facebook tracker
@@ -71,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
                 Profile.setCurrentProfile(currentProfile);
                 Log.d("facebook ---", Profile.getCurrentProfile().getName());
                 localUser = Profile.getCurrentProfile().getName();
+                sharedPref = getSharedPreferences(DISPLAYNAME, Context.MODE_PRIVATE);
+                editor = sharedPref.edit();
+                editor.putString(DISPLAYNAME, localUser);
+                editor.apply();
             }
         };
         profileTracker.startTracking();
