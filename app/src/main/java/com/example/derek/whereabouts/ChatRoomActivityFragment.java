@@ -1,6 +1,7 @@
 package com.example.derek.whereabouts;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -42,6 +43,9 @@ import java.util.ArrayList;
 public class ChatRoomActivityFragment extends ListFragment {
 
     final ArrayList<Message> messages = new ArrayList<Message>();
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
+    public final static String SAVEDID = "savedID";
 
     public static Socket mSocket;
     {
@@ -70,7 +74,10 @@ public class ChatRoomActivityFragment extends ListFragment {
         final EditText input = (EditText) getActivity().findViewById(R.id.editText);
         final Button button = (Button) getActivity().findViewById(R.id.button);
         final String username = getActivity().getIntent().getStringExtra("USERNAME");
-        final String room = getActivity().getIntent().getStringExtra("ROOM_NAME");
+        final String roomName = getActivity().getIntent().getStringExtra("ROOM_NAME");
+        final String roomId = getActivity().getIntent().getStringExtra("ROOM_ID");
+
+        sharedPref = getActivity().getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
 
         MapsActivity.initializeDrawableMap();
         getListView().setDivider(null);
@@ -79,7 +86,8 @@ public class ChatRoomActivityFragment extends ListFragment {
         JSONObject data = new JSONObject();
         try {
             data.put("username", username);
-            data.put("room", room);
+            data.put("room", roomId);
+            data.put("roomName", roomName);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -160,7 +168,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                 try {
                     data.put("username", username);
                     data.put("text", text);
-                    data.put("room", room);
+                    data.put("room", roomId);
 
                     if (!text.trim().equals("")) {
                         mSocket.emit("chat", data);
@@ -182,7 +190,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                 // Get chat history
                 HttpURLConnection urlConnection = null;
                 try {
-                    URL url = new URL("http://ec2-54-165-233-14.compute-1.amazonaws.com:3000/rooms/" + room);
+                    URL url = new URL("http://ec2-54-165-233-14.compute-1.amazonaws.com:3000/rooms/" + roomId);
                     urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setChunkedStreamingMode(0);
 
@@ -195,6 +203,11 @@ public class ChatRoomActivityFragment extends ListFragment {
                     }
 
                     JSONObject jsonObj = new JSONObject(result.toString());
+
+                    // Map id to room
+                    editor = sharedPref.edit();
+                    editor.putString(roomId, jsonObj.getString("name"));
+                    editor.apply();
 
                     JSONArray jsonArray = (JSONArray)jsonObj.get("chatHistory");
                     if (jsonArray != null) {

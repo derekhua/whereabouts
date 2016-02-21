@@ -38,6 +38,8 @@ import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         sharedPref = getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
+        editor = sharedPref.edit();
 
         String restoredText = sharedPref.getString(SAVEDID, null);
         localUser = sharedPref.getString(DISPLAYNAME, "user");
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("facebook ---", Profile.getCurrentProfile().getName());
                 localUser = Profile.getCurrentProfile().getName();
                 sharedPref = getSharedPreferences(DISPLAYNAME, Context.MODE_PRIVATE);
-                editor = sharedPref.edit();
+
                 editor.putString(DISPLAYNAME, localUser);
                 editor.apply();
             }
@@ -97,8 +100,10 @@ public class MainActivity extends AppCompatActivity {
         final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
         for (int i = 0; i < sharedPref.getInt("NUMROOMS", 0); i++) {
-
             // TODO Server request
+            String roomId = sharedPref.getString("" + i, null);
+            String roomName = sharedPref.getString(roomId, null);
+            chats.add(new Chat(android.R.drawable.ic_media_play, roomId, roomName));
         }
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -181,6 +186,9 @@ public class MainActivity extends AppCompatActivity {
                     editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
                     editor.apply();
                     editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
+
+                    editor.putString(id, newRoom);
+
                     editor.apply();
                 }
             });
@@ -221,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
                     String id = input.getText().toString().trim();
 
                     // TODO Server request
+
                     String newRoom = "Test";
 
                     Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
@@ -229,8 +238,9 @@ public class MainActivity extends AppCompatActivity {
                             id.toUpperCase(), newRoom));
 
                     editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
-                    editor.apply();
+                    editor.commit();
                     editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
+                    editor.putString(id, "click to get name");
                     editor.apply();
                 }
             });
