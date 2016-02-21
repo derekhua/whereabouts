@@ -15,7 +15,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -36,6 +35,7 @@ import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -142,9 +142,12 @@ public class ChatRoomActivityFragment extends ListFragment {
                     @Override
                     public void run() {
                         JSONObject json = ((JSONObject) args[0]);
+                        Calendar c = Calendar.getInstance();
                         try {
+                            Log.d("debugging", json.get("username").toString());
                             messages.add(new Message(android.R.drawable.ic_media_play,
-                                    json.get("username") + "", json.get("text") + "", "00:00"));
+                                    json.get("username") + "", json.get("text") + "", c.getTime().toString()
+                            .substring(10,19)));
                             adapter.notifyDataSetChanged();
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -165,6 +168,7 @@ public class ChatRoomActivityFragment extends ListFragment {
             public void onClick(View view) {
                 String text = input.getText().toString();
                 JSONObject data = new JSONObject();
+                Calendar c = Calendar.getInstance();
                 try {
                     data.put("username", username);
                     data.put("text", text);
@@ -173,7 +177,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                     if (!text.trim().equals("")) {
                         mSocket.emit("chat", data);
                         messages.add(new Message(android.R.drawable.ic_media_play,
-                                username, text.trim(), "00:00"));
+                                username, text.trim(), c.getTime().toString().substring(10,19)));
                         adapter.notifyDataSetChanged();
                         input.setText("");
                     }

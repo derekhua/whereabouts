@@ -25,7 +25,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.FacebookSdk;
+import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,12 +36,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import com.facebook.FacebookSdk;
-import com.facebook.Profile;
-import com.facebook.appevents.AppEventsLogger;
-
-import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
