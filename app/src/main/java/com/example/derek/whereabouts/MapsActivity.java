@@ -55,6 +55,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     static protected HashMap<String, Marker> markerList = new HashMap<String, Marker>();
     static public HashMap<String, Integer> drawableMap = new HashMap<String, Integer>();
 
+
+
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
      */
@@ -74,7 +76,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             initializeDrawableMap();
         }
         setContentView(R.layout.activity_maps);
-
         buildGoogleApiClient();
     }
 
@@ -208,7 +209,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         try {
             Intent intent = getIntent();
             data.put("username",intent.getStringExtra("USERNAME"));
-            data.put("room", intent.getStringExtra("ROOM_NAME"));
+            data.put("room", intent.getStringExtra("ROOM_ID"));
             data.put("latitude", mCurrentLocation.getLatitude());
             data.put("longitude", mCurrentLocation.getLongitude());
             ChatRoomActivityFragment.mSocket.emit("update", data);

@@ -9,9 +9,9 @@ import com.facebook.appevents.AppEventsLogger;
 
 public class ChatRoomActivity extends ActionBarActivity {
 
-    String roomID;
-    String roomName;
-    String username;
+    static String roomID;
+    static String roomName;
+    static String username;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
