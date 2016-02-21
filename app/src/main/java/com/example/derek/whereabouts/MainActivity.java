@@ -60,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+        Intent in = new Intent(this, GpsService.class);
+        startService(in);
+
         sharedPref = getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
 
         String restoredText = sharedPref.getString(SAVEDID, null);
@@ -75,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 Profile.setCurrentProfile(currentProfile);
                 Log.d("facebook ---", Profile.getCurrentProfile().getName());
                 localUser = Profile.getCurrentProfile().getName();
+                Toast.makeText(MainActivity.this, localUser, Toast.LENGTH_SHORT).show();
                 sharedPref = getSharedPreferences(DISPLAYNAME, Context.MODE_PRIVATE);
                 editor = sharedPref.edit();
                 editor.putString(DISPLAYNAME, localUser);
