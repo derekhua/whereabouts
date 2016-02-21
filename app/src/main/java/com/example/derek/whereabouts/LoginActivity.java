@@ -1,6 +1,8 @@
 package com.example.derek.whereabouts;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -11,6 +13,8 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.Profile;
+import com.facebook.ProfileTracker;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -22,6 +26,10 @@ public class LoginActivity extends AppCompatActivity {
 
     LoginButton loginButton;
     CallbackManager callbackManager;
+    public final static String USERNAME = "username";
+    SharedPreferences sharedPref;
+    SharedPreferences.Editor editor;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,6 +37,10 @@ public class LoginActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(this.getApplicationContext());
 
         setContentView(R.layout.activity_login);
+
+        sharedPref = getSharedPreferences(USERNAME, Context.MODE_PRIVATE);
+
+        editor = sharedPref.edit();
 
         loginButton = (LoginButton) findViewById(R.id.login_button);
         callbackManager = CallbackManager.Factory.create();
@@ -39,6 +51,19 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 Log.d("Facebook", "onSuccess: ");
                 // App code
+                editor.putString(USERNAME, loginResult.getAccessToken().getUserId());
+                editor.apply();
+
+                ProfileTracker profileTracker = new ProfileTracker() {
+                    @Override
+                    protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+                        this.stopTracking();
+                        Profile.setCurrentProfile(currentProfile);
+                        Log.d("facebook", Profile.getCurrentProfile().getName());
+                    }
+                };
+                profileTracker.startTracking();
+
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 startActivity(intent);
             }

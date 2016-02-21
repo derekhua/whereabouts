@@ -131,7 +131,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             String username = jsonLocation.get("username").toString();
                             LatLng location = new LatLng(Double.parseDouble(jsonLocation.get("latitude").toString()),
                                     Double.parseDouble(jsonLocation.get("longitude").toString()));
-                            if (markerList.get(username) == null) {
+                            System.out.println("TEST2 " + getIntent().getStringExtra("USERNAME") + " " + username);
+                            if (markerList.get(username) == null && !username.equals(getIntent().getStringExtra("USERNAME"))) {
                                 MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username);
                                 markerList.put(username, mMap.addMarker(newMarkerOps));
                             }
