@@ -172,6 +172,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                 try {
                     data.put("username", username);
                     data.put("text", text);
+                    data.put("time", c.getTime().toString().substring(10,19));
                     data.put("room", roomId);
 
                     if (!text.trim().equals("")) {
@@ -219,7 +220,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                         for (int i=0;i<len;i++){
                             JSONObject chat = (JSONObject) jsonArray.get(i);
                             messages.add(new Message(android.R.drawable.ic_media_play,
-                                    ((String)chat.get("username")).trim(), ((String)chat.get("text")).trim(), "00:00"));
+                                    ((String)chat.get("username")).trim(), ((String)chat.get("text")).trim(), ((String)chat.get("time"))));
                         }
                     }
 
