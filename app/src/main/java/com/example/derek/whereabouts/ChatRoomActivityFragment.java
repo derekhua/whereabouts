@@ -96,6 +96,7 @@ public class ChatRoomActivityFragment extends ListFragment {
         disconnectEmitter = new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                MapsActivity.markerList.clear();
                 Log.d("ChatRoomActivity: ", "SOCKETLOG: socket disconnected");
             }
         };
