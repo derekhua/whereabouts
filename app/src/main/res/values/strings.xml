@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">whereabouts</string>
+    <string name="app_name">Whereabouts</string>
     <string name="google_app_id">278782568598</string>
     <string name="facebook_app_id">995721923810450</string>
 
@@ -8,6 +8,11 @@
     <string name="title_activity_main">Chat List</string>
 
     <string name="action_map">Map</string>
+    <string name="action_new_room">New Room</string>
+    <string name="action_toggle_night">Toggle Night Mode</string>
+
+    <string name="drawer_open">Open Navigation Drawer</string>
+    <string name="drawer_close">Close Navigation Drawer</string>
 
     <string name="username"></string>
 </resources>

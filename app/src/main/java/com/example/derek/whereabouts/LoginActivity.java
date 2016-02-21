@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         protected void onCurrentProfileChanged(Profile profile, Profile profile2) {
                             // profile2 is the new profile
-                            Log.v("facebook - profile", profile2.getFirstName());
+                            Log.v("facebook -- profile", profile2.getFirstName());
                             mProfileTracker.stopTracking();
                         }
                     };
@@ -88,7 +88,6 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     @Override
@@ -96,5 +95,4 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
-
 }

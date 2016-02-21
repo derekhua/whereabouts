@@ -1,6 +1,5 @@
 package com.example.derek.whereabouts;
 
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -83,22 +83,21 @@ public class MainActivity extends AppCompatActivity {
         };
         profileTracker.startTracking();
 
-
         FacebookSdk.sdkInitialize(this.getApplicationContext());
 
         Log.d("facebook ---", "main activity");
 
         if (restoredText == null) {
+            localUser = sharedPref.getString(USERNAME, "No Name Defined");
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
         }
-
 
         // Initialize chat room list
         final ListView listView = (ListView) findViewById(R.id.listView);
         String[] values = new String[]{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         for (int i = 0; i < values.length; ++i) {
-            chats.add(new Chat(android.R.drawable.ic_media_play, values[i]));
+            chats.add(new Chat(android.R.drawable.ic_media_play, "0", values[i]));
         }
         final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
@@ -151,6 +150,58 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+        if (id == R.id.action_new_room) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Create new room");
+            builder.setMessage("(4 to 20 characters)");
+            builder.setIcon(android.R.drawable.ic_dialog_alert);
+            final EditText input = new EditText(this);
+            builder.setView(input);
+            builder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int button) {
+                    String newRoom = input.getText().toString().trim();
+                    Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
+                            "\" has been created", Toast.LENGTH_SHORT).show();
+                }
+            });
+            final AlertDialog dialog = builder.create();
+            dialog.show();
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+
+            // Enable "Done" button only if room name is valid
+            input.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String str = s.toString();
+                    if (str.length() < 4 || str.length() > 20) {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+                    } else {
+                        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(true);
+                    }
+
+                }
+            });
+            return true;
+        } else if (id == R.id.action_toggle_night) {
+            TypedValue outValue = new TypedValue();
+            getTheme().resolveAttribute(R.attr.themeName, outValue, true);
+            if ("Light".equals(outValue.string)) {
+                setTheme(R.style.DarkTheme);
+            } else {
+                setTheme(R.style.LightTheme);
+            }
+            recreate();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -197,10 +248,12 @@ public class MainActivity extends AppCompatActivity {
     private class Chat {
 
         int icon;
+        String id;
         String name;
 
-        private Chat(int icon, String name) {
+        private Chat(int icon, String id, String name) {
             this.icon = icon;
+            this.id = id;
             this.name = name;
         }
     }

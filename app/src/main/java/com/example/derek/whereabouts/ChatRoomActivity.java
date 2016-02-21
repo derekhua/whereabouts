@@ -48,7 +48,11 @@ public class ChatRoomActivity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_map) {
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_toggle_night) {
+            return true;
+        } else if (id == R.id.action_map) {
             Intent intent = new Intent(this, MapsActivity.class);
             intent.putExtra("ROOM_ID", room);
             intent.putExtra("ROOM_NAME", roomName);
