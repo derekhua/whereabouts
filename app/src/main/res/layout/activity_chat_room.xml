@@ -1,23 +1,17 @@
-<android.support.v4.widget.DrawerLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/activity_chat_room" >
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/fragment"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment"
         android:name="com.example.derek.whereabouts.ChatRoomActivityFragment"
-        tools:layout="@layout/fragment_chat_room" android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <!-- Navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
-        android:layout_width="120dp"
+        tools:layout="@layout/fragment_chat_room"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#fff" />
+        android:gravity="center_horizontal" />
 
-</android.support.v4.widget.DrawerLayout>
+</RelativeLayout>
