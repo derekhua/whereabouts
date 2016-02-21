@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">whereabouts</string>
+    <string name="app_name">Whereabouts</string>
     <string name="google_app_id">278782568598</string>
 
     <string name="title_activity_chat_room">Chat Room</string>
