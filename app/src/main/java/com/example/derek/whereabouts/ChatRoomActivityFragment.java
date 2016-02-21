@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -111,7 +112,7 @@ public class ChatRoomActivityFragment extends ListFragment {
                             LatLng location = new LatLng(Double.parseDouble(json.get("latitude").toString()), Double.parseDouble(json.get("longitude").toString()));
                             if (MapsActivity.markerList.get(username) == null && !username.equals(getActivity().getIntent().getStringExtra("USERNAME"))) {
                                 MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username)
-                                        .icon(BitmapDescriptorFactory.fromResource(MapsActivity.drawableMap.get("" + username.charAt(0))));
+                                        .icon(BitmapDescriptorFactory.fromResource( MapsActivity.drawableMap.get(("" + username.charAt(0)).toLowerCase())));
                                 MapsActivity.markerList.put(username, MapsActivity.mMap.addMarker(newMarkerOps));
                             } else {
                                 Marker marker = MapsActivity.markerList.get(username);

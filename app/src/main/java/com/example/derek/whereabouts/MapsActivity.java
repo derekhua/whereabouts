@@ -139,7 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     Double.parseDouble(jsonLocation.get("longitude").toString()));
                             if (markerList.get(username) == null && !username.equals(getIntent().getStringExtra("USERNAME"))) {
                                 MarkerOptions newMarkerOps = new MarkerOptions().position(location).title(username)
-                                        .icon(BitmapDescriptorFactory.fromResource(drawableMap.get("" + username.charAt(0))));
+                                        .icon(BitmapDescriptorFactory.fromResource( MapsActivity.drawableMap.get(("" + username.charAt(0)).toLowerCase())));
                                 markerList.put(username, mMap.addMarker(newMarkerOps));
                             }
                             else {
