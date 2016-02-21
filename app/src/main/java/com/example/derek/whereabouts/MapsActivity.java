@@ -157,6 +157,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         }
         JSONAsyncTask task = new JSONAsyncTask();
+        markerList.clear();
         task.execute();
     }
 
