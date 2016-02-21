@@ -43,8 +43,10 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
 
+    public final static String PREFS = "sharedPrefsString";
     public final static String SAVEDID = "savedID";
     public final static String DISPLAYNAME = "displayName";
+    public final static String NUMROOMS = "numberOfRooms";
 
     String localUser;
     List<Chat> chats = new ArrayList<>();
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        sharedPref = getSharedPreferences(SAVEDID, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         editor = sharedPref.edit();
 
         String restoredText = sharedPref.getString(SAVEDID, null);
@@ -99,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         final ListView listView = (ListView) findViewById(R.id.listView);
         final ArrayAdapter adapter = new ChatAdapter(this);
         listView.setAdapter(adapter);
-        for (int i = 0; i < sharedPref.getInt("NUMROOMS", 0); i++) {
+        for (int i = 0; i < sharedPref.getInt(NUMROOMS, 0); i++) {
             // TODO Server request
             String roomId = sharedPref.getString("" + i, null);
             String roomName = sharedPref.getString(roomId, null);
@@ -169,26 +171,25 @@ public class MainActivity extends AppCompatActivity {
                     StringBuilder tmp = new StringBuilder();
                     for (char ch = '0'; ch <= '9'; ++ch)
                         tmp.append(ch);
-                    for (char ch = 'a'; ch <= 'z'; ++ch)
+                    for (char ch = 'A'; ch <= 'Z'; ++ch)
                         tmp.append(ch);
                     char[] symbols = tmp.toString().toCharArray();
                     String id = "";
                     Random random = new Random();
-                    for (int i = 0; i < 10; i++) {
+                    for (int i = 0; i < 6; i++) {
                         id += (symbols[random.nextInt(symbols.length)]);
                     }
 
                     Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
                             "\" has been created", Toast.LENGTH_SHORT).show();
                     chats.add(new Chat(android.R.drawable.ic_media_play,
-                            id.toUpperCase(), newRoom));
+                            id, newRoom));
 
-                    editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
-                    editor.apply();
-                    editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
+                    int numRooms = sharedPref.getInt(NUMROOMS, 0);
 
                     editor.putString(id, newRoom);
-
+                    editor.putString("" + numRooms, id);
+                    editor.putInt(NUMROOMS, numRooms + 1);
                     editor.apply();
                 }
             });
@@ -230,17 +231,19 @@ public class MainActivity extends AppCompatActivity {
 
                     // TODO Server request
 
-                    String newRoom = "Test";
+                    String newRoom = "click to get name";
 
                     Toast.makeText(getApplicationContext(), "Room \"" + newRoom +
                             "\" has been joined", Toast.LENGTH_SHORT).show();
                     chats.add(new Chat(android.R.drawable.ic_media_play,
                             id.toUpperCase(), newRoom));
 
-                    editor.putInt("NUMROOMS", sharedPref.getInt("NUMROOMS", -1) + 1);
-                    editor.commit();
-                    editor.putString(sharedPref.getInt("NUMROOMS", 0) + "", id);
-                    editor.putString(id, "click to get name");
+
+                    int numRooms = sharedPref.getInt(NUMROOMS, 0);
+
+                    editor.putString(id, newRoom);
+                    editor.putString("" + numRooms, id);
+                    editor.putInt(NUMROOMS, numRooms + 1);
                     editor.apply();
                 }
             });
